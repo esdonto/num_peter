@@ -100,9 +100,7 @@ def resolveSimult(W, A):
             H[k,j] = (A_[k,j] - soma) / R[k,k] #encontra o H_k_j
     return H
 
-def testaSimult():
-    pass #TODO: remover pass e aplicar a função
-        
+def testaSimult():        
     def temp(k, i):
         if k==i: return 2
         elif abs(k-i)==1: return 1
@@ -123,47 +121,45 @@ def testaSimult():
     
 
 def altleastSqr(A,p):
+    #Implementação do pseudocódigo dado em na parte 3 do enunciado
+    n,m = A.shape #A n por m, W n por p e H p por m
+    A_ = A.copy() #cria cópia para não alterar a matrix A original
+    itmax = 100 #número de iterações para chegar a condição de saída
+    e = 10**-5 #valor máximo do erro para chegar na condição de saída
     
-    n,m = A.shape
-    A_ = A.copy()
-    itmax = 100
-    e = 10**-5
+    W = np.matrix([[1 for k in range(p)] for i in range(n)], dtype=float) #Cria matriz W com todos os valores iguais a 1
     
-    W = np.matrix([[1 for k in range(p)] for i in range(n)], dtype=float)
-    s = W.sum(0)
-    
-    it=0
-    E=0
-    hmax=0
-    wmax=0
-    while it<itmax and E<e:
-        for i in range(n):
-            for j in range(p):
+    it=0 #número de iterações
+    E = 0
+    deltaE = 1 #diferença entre os erros de 2 iteração consecutivas, começando maior do que e para não ser pego na condiçaõ de saída
+
+    while it<itmax and deltaE>e:
+        s = np.sqrt(np.square(W).sum(0)) #faz o quadrado de todos os valores de W, soma as colunas e faz a raiz quadrada de cada somatória
+        for i in range(n): #percorre linhas de W
+            for j in range(p): #percorendo a linha
                 W[i,j] = W[i,j]/s[0,j]
                 
-        print(W)
-        H = resolveSimult(W,A)
-        print(H)
+        H = resolveSimult(W,A_)
+        
         for i in range(H.shape[0]):
             for j in range(H.shape[1]):
-                if H[i,j]>hmax:
-                    hmax=H[i,j]
-                else:
-                    H[i,j]=hmax
+                H[i,j] = max(0, H[i,j])
+
         Atrsp = A_.T
         Wtrsp = resolveSimult(H.T,Atrsp)
         W = Wtrsp.T
         for i in range(W.shape[0]):
             for j in range(W.shape[1]):
-                if W[i,j]>wmax:
-                    wmax=W[i,j]
-                else:
-                    W[i,j]=wmax
+                W[i,j] = max(0, W[i,j])
+
         
-        E = np.square(A-W*H)
+        Eantigo = E
+        E = np.square(A_-W*H).sum()
+
+        deltaE = abs(E - Eantigo)
         it += 1
         
-    return A,W,H
+    return W,H
 
         
     
