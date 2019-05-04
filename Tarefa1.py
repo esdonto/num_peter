@@ -129,3 +129,47 @@ def testaSimult():
     print("Total: ", np.square((W.I * A) - sol).sum())
     
 testaSimult()
+
+def altleastSqr(A,p):
+    pass
+
+    n,m = A.shape
+    A_ = A.copy()
+    itmax = 100
+    e = 10**-5
+    
+    W = np.matrix([[1 for k in range(p)] for i in range(n)], dtype=float)
+    s = W.sum(0)
+    
+    it=0
+    E=1
+    hmax=0
+    wmax=0
+    while it<itmax and E<e:
+        for i in range(n):
+            for j in range(p):
+                W[i,j] = W[i,j]/s[j]
+        H = resolveSimult(W,A)
+        for i in range(H.shape[0]):
+            for j in range(H.shape[1]):
+                if H[i,j]>hmax:
+                    hmax=H[i,j]
+                else:
+                    H[i,j]=hmax
+        Atrsp = A_.T
+        Wtrsp = resolveSimult(H.T,Atrsp)
+        W = Wtrsp.T
+        for i in range(W.shape[0]):
+            for j in range(W.shape[1]):
+                if W[i,j]>wmax:
+                    wmax=W[i,j]
+                else:
+                    W[i,j]=wmax
+        E = np.square(A-W*H)
+        it += 1
+        
+    return A,W,H
+
+        
+    
+    
