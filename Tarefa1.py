@@ -120,33 +120,34 @@ def testaSimult():
     print("Total: ", np.square(solvSobr(W,A) - sol).sum())
     
 
-def altleastSqr(A,p):
+def fatoraMatriz(A,p):
     #Implementação do pseudocódigo dado em na parte 3 do enunciado
     n,m = A.shape #A n por m, W n por p e H p por m
     A_ = A.copy() #cria cópia para não alterar a matrix A original
     itmax = 100 #número de iterações para chegar a condição de saída
-    e = 10**-5 #valor máximo do erro para chegar na condição de saída
+    e = 1e-50 #valor da diferença entre dois erros consecutivod máximo para chegar na condição de saída
     
-    W = np.matrix([[1 for k in range(p)] for i in range(n)], dtype=float) #Cria matriz W com todos os valores iguais a 1
+    W = np.matrix([[1 for k in range(p)] for i in range(n)], dtype=A.dtype) #Cria matriz W com todos os valores iguais a 1
     
     it=0 #número de iterações
     E = 0
     deltaE = 1 #diferença entre os erros de 2 iteração consecutivas, começando maior do que e para não ser pego na condiçaõ de saída
 
     while it<itmax and deltaE>e:
-        s = np.sqrt(np.square(W).sum(0)) #faz o quadrado de todos os valores de W, soma as colunas e faz a raiz quadrada de cada somatória
-        for i in range(n): #percorre linhas de W
-            for j in range(p): #percorendo a linha
+        s = np.sqrt(np.square(W).sum(0)) #faz o quadrado de todos os valores de W, soma as colunas e depois a raiz quadrada de cada somatória
+        for i in range(n): #i-ésima linha
+            for j in range(p): #j-ésima coluna
                 W[i,j] = W[i,j]/s[0,j]
                 
         H = resolveSimult(W,A_)
+        A_ = A.copy()
         
         for i in range(H.shape[0]):
             for j in range(H.shape[1]):
                 H[i,j] = max(0, H[i,j])
 
-        Atrsp = A_.T
-        Wtrsp = resolveSimult(H.T,Atrsp)
+        Atrsp = A_.T.copy()
+        Wtrsp = resolveSimult(H.T.copy(),Atrsp)
         W = Wtrsp.T
         for i in range(W.shape[0]):
             for j in range(W.shape[1]):
@@ -158,8 +159,26 @@ def altleastSqr(A,p):
 
         deltaE = abs(E - Eantigo)
         it += 1
+        print(deltaE, it)
         
     return W,H
 
         
-    
+def testaFatora():
+    #Testa o erro da fatoração criada pelo método de mínimos quadrados alternados
+    A = np.matrix("3 6 0; 5 0 10; 4 8 0", dtype=float) / 10
+    W = np.matrix("3 0; 0 5; 4 0", dtype=float) / 5
+    H = np.matrix("1 2 0; 1 0 2", dtype=float) / 2
+    m, n, p = 3, 3, 2
+
+    W_, H_ = fatoraMatriz(A, p)
+    '''print(W, "\n", W_, "\n", W-W_)
+    print(H, "\n", H_, "\n", H-H_)
+    print(A, "\n", W_*H_, "\n", A - W_*H_)'''
+    print("\nW\n", W, "\nW_\n", W_, "\nW-W_\n", W-W_)
+    print("\nH\n", H, "\nH_\n", H_, "\nH-H_\n",  H-H_)
+    print("\nA\n", A, "\nA_\n", W_*H_, "\nA-A_\n", A - W_*H_)
+
+    print("Total: ", np.square(A - W_*H_).sum())
+
+testaFatora()
