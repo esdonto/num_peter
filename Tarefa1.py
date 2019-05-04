@@ -1,14 +1,21 @@
 # -*- coding: utf-8 -*-
-"""
-Created on Mon Apr 29 15:49:30 2019
-
-@author: Pedro B. Carvalhaes
-"""
 
 # A = np.matrix("2 1 1 -1 1 ; 0 3 0 1 2 ; 0 0 2 2 -1 ; 0 0 -1 1 2 ; 0 0 0 3 1")
 
 import numpy as np
 import math
+
+#------------------# NÃO USAR NO EP #----------------------------
+def solvSobr(W,b):
+    #Resolve sistema sobredeterminado para medir o erro
+    W_ = np.matrix([[0 for j in range(W.shape[1])] for j in range(W.shape[1])], dtype=W.dtype)
+    b_ = np.matrix([0 for i in range(W.shape[1])], dtype=b.dtype).T
+    for i in range(b_.shape[0]): #percorre linhas
+        for j in range(b_.shape[0]): #percorre colunas
+            W_[i,j] = (W[:,i].T * W[:,j])[0,0]
+        b_[i,0] = (W[:,i].T * b)[0,0]
+    return W_.I * b_
+#------------------# NÃO USAR NO EP #----------------------------
 
 def cosSen(W,i,j,k):
     #Fórmulas (3) e (4), na parte 2.2 do enunciado
@@ -25,24 +32,48 @@ def cosSen(W,i,j,k):
 
 def rotGivens(W, n, m ,i, j, c, s):
     #Aplicação do pseudocódigo dado em 2.4 do enunciado
-    for r in range(0, n):
+    for r in range(0, m):
         W[i,r], W[j,r] = c*W[i,r] - s*W[j,r], s*W[i,r] + c*W[j,r]
 
 
-def resolveSobredet(W, n, m, b):
+def resolveSobredet(W, b):
     #Aplicação do pseudocódigo dado em 2.3 do enunciado
+    n,m = W.shape #n linhas, m colunas
+    b_ = b.copy() #cria cópia para não alterar a matriz original
+    R = W.copy()
     for k in range(m): #percorrendo colunas
-        for j in range(n-1, k+1, -1): #percorrendo a coluna, de baixo para cima até k+1
+        for j in range(n-1, k, -1): #percorrendo a coluna, de baixo para cima até k+1
             i = j-1
             if W[j,k] != 0:
-                c, s = cosSen(W, i, j, k)
-                rotGivens(W, n, m, i, j, c, s)
-    #No final M será igual a matrix R, tringular superor, de M
+                c, s = cosSen(R, i, j, k) #acha cos e sen
+                rotGivens(R, n, m, i, j, c, s) #aplicação da rotação na marix W
+                rotGivens(b_,n, 1, i, j, c, s) #aplicação da rotação no "vetor" b
+    #No final M será igual a matriz R, tringular superor, de M original e a matriz b, rotacionada em relação ao b original
     x = np.matrix(m*[0], dtype=W.dtype).T #criação do vetor x como uma matrix m por 1
-    soma = 0 #somatoria que é subtraída em b[k,0]
-    for k in range(m-1, 0, -1): #percorre os valores de x
-        if k<m-1: soma += W[k,k+1] * x[k+1,0] #na primeira iteração soma tem que ser igual a 1
-        x[k,0] = (b[k,0] - soma) / W[k,k]
+    for k in range(m-1, -1, -1): #percorre os valores de x
+        soma = sum([R[k,j]*x[j,0] for j in range(k+1, m)]) #encontra a somatória para subtrair em b_k
+        x[k,0] = (b_[k,0] - soma) / R[k,k] #encontra o x_k
     return x
 
-#TODO: Testar criando a) e b) e chacando resultados fazendo M^-1 * b quando M quadrado
+def testaSobredet():
+    #a)
+    def temp(k, i):
+        if k==i: return 2
+        elif abs(k-i)==1: return 1
+        elif abs(k-i)>1: return 0
+    W = np.matrix([[temp(k,i) for k in range(64)] for i in range(64)], dtype=float)
+    b = np.matrix([1+i for i in range(64)], dtype=float).T
+    sol = resolveSobredet(W,b)
+    #print("Achado:\n", sol)
+    #print("Real:\n", Wold.I * bold)
+    #pint("Diferenca:\n", (Wold.I * bold) - sol)
+    print("Total: ", np.square((W.I * b) - sol).sum())
+    #b)
+    def temp(k, i):
+        if abs(k-i)<=4: return 1 / (i+k+1)
+        else: return 0
+    W = np.matrix([[temp(k,i) for k in range(17)] for i in range(20)], dtype=float)
+    b = np.matrix([1 for i in range(20)], dtype=float).T
+    sol = resolveSobredet(W,b)
+    print("Total: ", np.square(solvSobr(W,b) - sol).sum())
+testaSobredet()
