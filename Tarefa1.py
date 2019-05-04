@@ -98,5 +98,34 @@ def resolveSimult(W, A):
             H[k,j] = (A_[k,j] - soma) / R[k,k] #encontra o H_k_j
     return H
 
-    def testaSimult():
-        pass #TODO: remover pass e aplicar a função
+def testaSimult():
+    pass #TODO: remover pass e aplicar a função
+        
+    def temp(k, i):
+        if k==i: return 2
+        elif abs(k-i)==1: return 1
+        elif abs(k-i)>1: return 0
+        
+    W = np.matrix([[temp(k,i) for k in range(64)] for i in range(64)], dtype=float)
+    A1 = np.matrix([1 for i in range(64)], dtype=float).T
+    A2 = np.matrix([i+1 for i in range(64)], dtype=float).T
+    A3 = np.matrix([2*(i+1)-1 for i in range(64)], dtype=float).T
+    A = np.concatenate((A1,A2,A3),axis=1)
+    sol = resolveSimult(W,A)
+    #print("Achado:\n", sol)
+    #print("Real:\n", Wold.I * bold)
+    #pint("Diferenca:\n", (Wold.I * bold) - sol)
+    print("Total: ", np.square((W.I * A) - sol).sum())
+    #b)
+    def temp(k, i):
+        if abs(k-i)<=4: return 1 / (i+k+1)
+        else: return 0
+    W = np.matrix([[temp(k,i) for k in range(17)] for i in range(20)], dtype=float)
+    A1 = np.matrix([1 for i in range(20)], dtype=float).T
+    A2 = np.matrix([i+1 for i in range(20)], dtype=float).T
+    A3 = np.matrix([2*(i+1)-1 for i in range(20)], dtype=float).T
+    A = np.concatenate((A1,A2,A3),axis=1)
+    sol = resolveSimult(W,A)
+    print("Total: ", np.square((W.I * A) - sol).sum())
+    
+testaSimult()
