@@ -76,4 +76,27 @@ def testaSobredet():
     b = np.matrix([1 for i in range(20)], dtype=float).T
     sol = resolveSobredet(W,b)
     print("Total: ", np.square(solvSobr(W,b) - sol).sum())
-testaSobredet()
+
+def resolveSimult(W, A):
+    #Aplicação do pseudocódigo dado em 2.4 do enunciado
+    n,m = A.shape #n linhas, m colunas de A
+    p = W.shape[1] #p colunas de H
+    A_ = A.copy() #cria cópia para não alterar a matriz original
+    R = W.copy()
+    for k in range(p): #percorrendo colunas
+        for j in range(n-1, k, -1): #percorrendo a coluna, de baixo para cima até k+1
+            i = j-1
+            if W[j,k] != 0:
+                c, s = cosSen(R, i, j, k) #acha cos e sen
+                rotGivens(R, n, p, i, j, c, s) #aplicação da rotação na mariz W
+                rotGivens(A_,n, m, i, j, c, s) #aplicação da rotação no matrz A
+    #No final M será igual a matriz R, tringular superor, de M original e a matriz A, rotacionada em relação ao A original
+    H = np.matrix([[0 for j in range(p)] for i in range(m)], dtype=A.dtype).T #criação do vetor x como uma matrix m por 1
+    for k in range(p-1, -1, -1): #percorre os valores de x
+        for j in range(m):
+            soma = sum([R[k,i]*H[i,j] for i in range(k+1, p)]) #encontra a somatória para subtrair em A_k_j
+            H[k,j] = (A_[k,j] - soma) / R[k,k] #encontra o H_k_j
+    return H
+
+    def testaSimult():
+        pass #TODO: remover pass e aplicar a função
