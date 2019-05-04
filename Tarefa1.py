@@ -9,11 +9,13 @@ import math
 def solvSobr(W,b):
     #Resolve sistema sobredeterminado para medir o erro
     W_ = np.matrix([[0 for j in range(W.shape[1])] for j in range(W.shape[1])], dtype=W.dtype)
-    b_ = np.matrix([0 for i in range(W.shape[1])], dtype=b.dtype).T
-    for i in range(b_.shape[0]): #percorre linhas
-        for j in range(b_.shape[0]): #percorre colunas
+    b_ = np.matrix([[0 for i in range(b.shape[1])] for k in range(W.shape[1])], dtype=b.dtype)
+    for i in range(W.shape[1]): #percorre linhas
+        for j in range(W.shape[1]): #percorre colunas
             W_[i,j] = (W[:,i].T * W[:,j])[0,0]
-        b_[i,0] = (W[:,i].T * b)[0,0]
+    for k in range(b.shape[1]):
+        for i in range(b_.shape[0]):
+            b_[i,k] = (W[:,i].T * b[:,k])[0,0]
     return W_.I * b_
 #------------------# NÃO USAR NO EP #----------------------------
 
@@ -86,7 +88,7 @@ def resolveSimult(W, A):
     for k in range(p): #percorrendo colunas
         for j in range(n-1, k, -1): #percorrendo a coluna, de baixo para cima até k+1
             i = j-1
-            if W[j,k] != 0:
+            if R[j,k] != 0:
                 c, s = cosSen(R, i, j, k) #acha cos e sen
                 rotGivens(R, n, p, i, j, c, s) #aplicação da rotação na mariz W
                 rotGivens(A_,n, m, i, j, c, s) #aplicação da rotação no matrz A
@@ -107,26 +109,17 @@ def testaSimult():
         elif abs(k-i)>1: return 0
         
     W = np.matrix([[temp(k,i) for k in range(64)] for i in range(64)], dtype=float)
-    A1 = np.matrix([1 for i in range(64)], dtype=float).T
-    A2 = np.matrix([i+1 for i in range(64)], dtype=float).T
-    A3 = np.matrix([2*(i+1)-1 for i in range(64)], dtype=float).T
-    A = np.concatenate((A1,A2,A3),axis=1)
+    A = np.matrix([[1 for i in range(64)], [i+1 for i in range(64)], [2*(i+1)-1 for i in range(64)]], dtype=float).T
     sol = resolveSimult(W,A)
-    #print("Achado:\n", sol)
-    #print("Real:\n", Wold.I * bold)
-    #pint("Diferenca:\n", (Wold.I * bold) - sol)
     print("Total: ", np.square((W.I * A) - sol).sum())
     #b)
     def temp(k, i):
         if abs(k-i)<=4: return 1 / (i+k+1)
         else: return 0
     W = np.matrix([[temp(k,i) for k in range(17)] for i in range(20)], dtype=float)
-    A1 = np.matrix([1 for i in range(20)], dtype=float).T
-    A2 = np.matrix([i+1 for i in range(20)], dtype=float).T
-    A3 = np.matrix([2*(i+1)-1 for i in range(20)], dtype=float).T
-    A = np.concatenate((A1,A2,A3),axis=1)
+    A = np.matrix([[1 for i in range(20)], [i+1 for i in range(20)], [2*(i+1)-1 for i in range(20)]], dtype=float).T
     sol = resolveSimult(W,A)
-    print("Total: ", np.square((W.I * A) - sol).sum())
+    print("Total: ", np.square(solvSobr(W,A) - sol).sum())
     
 
 def altleastSqr(A,p):
@@ -173,5 +166,4 @@ def altleastSqr(A,p):
     return A,W,H
 
         
-    
     
