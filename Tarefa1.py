@@ -64,7 +64,7 @@ def testaSobredet():
         elif abs(k-i)==1: return 1
         elif abs(k-i)>1: return 0
     W = np.matrix([[temp(k,i) for k in range(64)] for i in range(64)], dtype=float)
-    b = np.matrix([1+i for i in range(64)], dtype=float).T
+    b = np.matrix([1 for i in range(64)], dtype=float).T
     sol = resolveSobredet(W,b)
     #print("Achado:\n", sol)
     #print("Real:\n", Wold.I * bold)
@@ -75,7 +75,7 @@ def testaSobredet():
         if abs(k-i)<=4: return 1 / (i+k+1)
         else: return 0
     W = np.matrix([[temp(k,i) for k in range(17)] for i in range(20)], dtype=float)
-    b = np.matrix([1 for i in range(20)], dtype=float).T
+    b = np.matrix([i+1 for i in range(20)], dtype=float).T
     sol = resolveSobredet(W,b)
     print("Total: ", np.square(solvSobr(W,b) - sol).sum())
 
@@ -100,7 +100,8 @@ def resolveSimult(W, A):
             H[k,j] = (A_[k,j] - soma) / R[k,k] #encontra o H_k_j
     return H
 
-def testaSimult():        
+def testaSimult():  
+    #c)      
     def temp(k, i):
         if k==i: return 2
         elif abs(k-i)==1: return 1
@@ -110,7 +111,7 @@ def testaSimult():
     A = np.matrix([[1 for i in range(64)], [i+1 for i in range(64)], [2*(i+1)-1 for i in range(64)]], dtype=float).T
     sol = resolveSimult(W,A)
     print("Total: ", np.square((W.I * A) - sol).sum())
-    #b)
+    #d)
     def temp(k, i):
         if abs(k-i)<=4: return 1 / (i+k+1)
         else: return 0
@@ -172,13 +173,12 @@ def testaFatora():
     m, n, p = 3, 3, 2
 
     W_, H_ = fatoraMatriz(A, p)
-    '''print(W, "\n", W_, "\n", W-W_)
-    print(H, "\n", H_, "\n", H-H_)
-    print(A, "\n", W_*H_, "\n", A - W_*H_)'''
     print("\nW\n", W, "\nW_\n", W_, "\nW-W_\n", W-W_)
     print("\nH\n", H, "\nH_\n", H_, "\nH-H_\n",  H-H_)
     print("\nA\n", A, "\nA_\n", W_*H_, "\nA-A_\n", A - W_*H_)
-
     print("Total: ", np.square(A - W_*H_).sum())
 
 testaFatora()
+
+#A = np.matrix("68 78 39 146 18 59 139; 42 134 105 123 50 79 88; 88 97 109 131 38 73 88; 64 54 28 82 32 78 44; 28 62 53 52 14 37 39; 186 187 96 225 84 231 158", dtype=float)
+#print(fatoraMatriz(A, 5))
