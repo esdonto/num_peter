@@ -4,6 +4,7 @@
 
 import numpy as np
 import math
+import random
 
 #------------------# NÃO USAR NO EP #----------------------------
 def solvSobr(W,b):
@@ -34,7 +35,7 @@ def cosSen(W,i,j,k):
 
 def rotGivens(W, n, m ,i, j, c, s):
     #Aplicação do pseudocódigo dado em 2.4 do enunciado
-    for r in range(0, m):
+    for r in range(m):
         W[i,r], W[j,r] = c*W[i,r] - s*W[j,r], s*W[i,r] + c*W[j,r]
 
 
@@ -54,7 +55,7 @@ def resolveSobredet(W, b):
     x = np.matrix(m*[0], dtype=W.dtype).T #criação do vetor x como uma matrix m por 1
     for k in range(m-1, -1, -1): #percorre os valores de x
         soma = sum([R[k,j]*x[j,0] for j in range(k+1, m)]) #encontra a somatória para subtrair em b_k
-        x[k,0] = (b_[k,0] - soma) / R[k,k] #encontra o x_k
+        x[k,0] = (b_[k,0] - soma) / (R[k,k]) #encontra o x_k
     return x
 
 def testaSobredet():
@@ -97,7 +98,7 @@ def resolveSimult(W, A):
     for k in range(p-1, -1, -1): #percorre os valores de x
         for j in range(m):
             soma = sum([R[k,i]*H[i,j] for i in range(k+1, p)]) #encontra a somatória para subtrair em A_k_j
-            H[k,j] = (A_[k,j] - soma) / R[k,k] #encontra o H_k_j
+            H[k,j] = (A_[k,j] - soma) / (R[k,k] + 1-15) #encontra o H_k_j
     return H
 
 def testaSimult():  
@@ -148,7 +149,7 @@ def fatoraMatriz(A,p):
                 H[i,j] = max(0, H[i,j])
 
         Atrsp = A_.T.copy()
-        Wtrsp = resolveSimult(H.T.copy(),Atrsp)
+        Wtrsp = resolveSimult(H.T.copy(), Atrsp)
         W = Wtrsp.T
         for i in range(W.shape[0]):
             for j in range(W.shape[1]):
@@ -160,7 +161,7 @@ def fatoraMatriz(A,p):
 
         deltaE = abs(E - Eantigo)
         it += 1
-        #print(E, it)
+        print(E, it)
         
     return W,H
 
