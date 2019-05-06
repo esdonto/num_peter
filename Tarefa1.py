@@ -46,7 +46,7 @@ def resolveSobredet(W, b):
     for k in range(m): #percorrendo colunas
         for j in range(n-1, k, -1): #percorrendo a coluna, de baixo para cima até k+1
             i = j-1
-            if W[j,k] != 0:
+            if R[j,k] != 0:
                 c, s = cosSen(R, i, j, k) #acha cos e sen
                 rotGivens(R, n, m, i, j, c, s) #aplicação da rotação na marix W
                 rotGivens(b_,n, 1, i, j, c, s) #aplicação da rotação no "vetor" b
