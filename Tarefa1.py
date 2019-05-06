@@ -97,7 +97,7 @@ def resolveSimult(W, A):
     for k in range(p-1, -1, -1): #percorre os valores de x
         for j in range(m):
             soma = sum([R[k,i]*H[i,j] for i in range(k+1, p)]) #encontra a somatória para subtrair em A_k_j
-            H[k,j] = (A_[k,j] - soma) / R[k,k] #encontra o H_k_j
+            H[k,j] = (A_[k,j] - soma) / (R[k,k] + 1e-15) #encontra o H_k_j
     return H
 
 def testaSimult():  
