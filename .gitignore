@@ -1,2 +1,8 @@
 
 \.vscode/
+
+dados_mnist/
+
+__pycache__/
+
+normas\.csv

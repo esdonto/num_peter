@@ -126,7 +126,7 @@ def fatoraMatriz(A,p):
     n,m = A.shape #A n por m, W n por p e H p por m
     A_ = A.copy() #cria cópia para não alterar a matrix A original
     itmax = 100 #número de iterações para chegar a condição de saída
-    e = 1e-50 #valor da diferença entre dois erros consecutivod máximo para chegar na condição de saída
+    e = 1e-5 #valor da diferença entre dois erros consecutivod máximo para chegar na condição de saída
     
     W = np.matrix([[1 for k in range(p)] for i in range(n)], dtype=A.dtype) #Cria matriz W com todos os valores iguais a 1
     
@@ -160,7 +160,7 @@ def fatoraMatriz(A,p):
 
         deltaE = abs(E - Eantigo)
         it += 1
-        print(deltaE, it)
+        #print(E, it)
         
     return W,H
 
@@ -178,7 +178,7 @@ def testaFatora():
     print("\nA\n", A, "\nA_\n", W_*H_, "\nA-A_\n", A - W_*H_)
     print("Total: ", np.square(A - W_*H_).sum())
 
-testaFatora()
+#testaFatora()
 
 #A = np.matrix("68 78 39 146 18 59 139; 42 134 105 123 50 79 88; 88 97 109 131 38 73 88; 64 54 28 82 32 78 44; 28 62 53 52 14 37 39; 186 187 96 225 84 231 158", dtype=float)
 #print(fatoraMatriz(A, 5))
