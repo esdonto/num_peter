@@ -34,8 +34,7 @@ def cosSen(W,i,j,k):
 
 def rotGivens(W, n, m ,i, j, c, s):
     #Aplicação do pseudocódigo dado em 2.4 do enunciado
-    for r in range(0, m):
-        W[i,r], W[j,r] = c*W[i,r] - s*W[j,r], s*W[i,r] + c*W[j,r]
+    W[i,:], W[j,:] = c*W[i,:] - s*W[j,:], s*W[i,:] + c*W[j,:]
 
 
 def resolveSobredet(W, b):
@@ -93,11 +92,13 @@ def resolveSimult(W, A):
                 rotGivens(R, n, p, i, j, c, s) #aplicação da rotação na mariz W
                 rotGivens(A_,n, m, i, j, c, s) #aplicação da rotação no matrz A
     #No final M será igual a matriz R, tringular superor, de M original e a matriz A, rotacionada em relação ao A original
-    H = np.matrix([[0 for j in range(p)] for i in range(m)], dtype=A.dtype).T #criação do vetor x como uma matrix m por 1
+    H = np.matrix(np.zeros((p,m), dtype=A.dtype)) #criação do vetor x como uma matrix m por 1
     for k in range(p-1, -1, -1): #percorre os valores de x
         for j in range(m):
-            soma = sum([R[k,i]*H[i,j] for i in range(k+1, p)]) #encontra a somatória para subtrair em A_k_j
-            H[k,j] = (A_[k,j] - soma) / (R[k,k] + 1e-15) #encontra o H_k_j
+            #soma = sum([R[k,i]*H[i,j] for i in range(k+1, p)]) #encontra a somatória para subtrair em A_k_j
+            soma = sum(R[k, k+1:] * H[k+1:, j])
+            if R[k,k] : H[k,j] = (A_[k,j] - soma) / R[k,k]
+            else: H[k,j] = (A_[k,j] - soma) / 1e-15 #encontra o H_k_j
     return H
 
 def testaSimult():  
@@ -120,7 +121,7 @@ def testaSimult():
     sol = resolveSimult(W,A)
     print("Total: ", np.square(solvSobr(W,A) - sol).sum())
     
-
+#testaSimult()
 def fatoraMatriz(A,p):
     #Implementação do pseudocódigo dado em na parte 3 do enunciado
     n,m = A.shape #A n por m, W n por p e H p por m
@@ -128,7 +129,7 @@ def fatoraMatriz(A,p):
     itmax = 100 #número de iterações para chegar a condição de saída
     e = 1e-5 #valor da diferença entre dois erros consecutivod máximo para chegar na condição de saída
     
-    W = np.matrix([[1 for k in range(p)] for i in range(n)], dtype=A.dtype) #Cria matriz W com todos os valores iguais a 1
+    W = np.matrix(np.ones((n,p), dtype=A.dtype)) #Cria matriz W com todos os valores iguais a 1
     
     it=0 #número de iterações
     E = 0
@@ -141,14 +142,14 @@ def fatoraMatriz(A,p):
                 W[i,j] = W[i,j]/s[0,j]
                 
         H = resolveSimult(W,A_)
-        A_ = A.copy()
+        #A_ = A.copy()
         
-        for i in range(H.shape[0]):
-            for j in range(H.shape[1]):
+        for i in range(p):
+            for j in range(m):
                 H[i,j] = max(0, H[i,j])
 
-        Atrsp = A_.T.copy()
-        Wtrsp = resolveSimult(H.T.copy(),Atrsp)
+        Atrsp = A_.T
+        Wtrsp = resolveSimult(H.T,Atrsp)
         W = Wtrsp.T
         for i in range(W.shape[0]):
             for j in range(W.shape[1]):
