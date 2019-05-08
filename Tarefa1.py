@@ -137,24 +137,27 @@ def fatoraMatriz(A,p):
 
     while it<itmax and deltaE>e:
         s = np.sqrt(np.square(W).sum(0)) #faz o quadrado de todos os valores de W, soma as colunas e depois a raiz quadrada de cada somatória
-        for i in range(n): #i-ésima linha
-            for j in range(p): #j-ésima coluna
-                W[i,j] = W[i,j]/s[0,j]
+        #for i in range(n): #i-ésima linha
+        #    for j in range(p): #j-ésima coluna
+        #        W[i,j] = W[i,j]/s[0,j]
+        for i in range(p):
+            W[:,i] /= s[0,i]
                 
         H = resolveSimult(W,A_)
         #A_ = A.copy()
         
-        for i in range(p):
+        '''for i in range(p):
             for j in range(m):
-                H[i,j] = max(0, H[i,j])
+                H[i,j] = max(0, H[i,j])'''
+        H[H<0] = 0
 
         Atrsp = A_.T
         Wtrsp = resolveSimult(H.T,Atrsp)
         W = Wtrsp.T
-        for i in range(W.shape[0]):
+        '''for i in range(W.shape[0]):
             for j in range(W.shape[1]):
-                W[i,j] = max(0, W[i,j])
-
+                W[i,j] = max(0, W[i,j])'''
+        W[W<0] = 0
         
         Eantigo = E
         E = np.square(A_-W*H).sum()
