@@ -13,6 +13,7 @@ def main(ndig_treino=100, p=5):
     Ws = dez * [0]
     for i in range(dez):
         Ws[i] = fatoraMatriz(digitos[i], p)[0]
+        np.savetxt("Ws/n4000p15{}.csv".format(i), Ws[i], delimiter=",")
     print("Terminou de fatorar")
     #Parte 2
     baseTreino = np.matrix(np.genfromtxt("dados_mnist/test_images.txt", usecols=range(10000)))
@@ -22,6 +23,7 @@ def main(ndig_treino=100, p=5):
     for i in range(dez):
         Hs[i] = resolveSimult(Ws[i], baseTreino)
         normas[i,:] = np.sqrt(np.square(baseTreino-Ws[i]*Hs[i]).sum(0))
+    np.savetxt("normas.csv", normas, delimiter=",")
     return normas
 
 

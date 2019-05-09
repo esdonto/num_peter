@@ -159,8 +159,7 @@ def fatoraMatriz(A,p):
                 W[i,j] = max(0, W[i,j])'''
         W[W<0] = 0
         
-        Eantigo = E
-        E = np.square(A_-W*H).sum()
+        Eantigo, E = E, np.square(A_-W*H).sum()
 
         deltaE = abs(E - Eantigo)
         it += 1
@@ -185,4 +184,5 @@ def testaFatora():
 #testaFatora()
 
 #A = np.matrix("68 78 39 146 18 59 139; 42 134 105 123 50 79 88; 88 97 109 131 38 73 88; 64 54 28 82 32 78 44; 28 62 53 52 14 37 39; 186 187 96 225 84 231 158", dtype=float)
-#print(fatoraMatriz(A, 5))
+#temp = fatoraMatriz(A, 5)
+#print(np.dot(temp[0], temp[1]))
