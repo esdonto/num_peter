@@ -50,7 +50,7 @@ def resolveSobredet(W, b):
                 rotGivens(R, n, m, i, j, c, s) #aplicação da rotação na marix W
                 rotGivens(b_,n, 1, i, j, c, s) #aplicação da rotação no "vetor" b
     #No final M será igual a matriz R, tringular superor, de M original e a matriz b, rotacionada em relação ao b original
-    x = np.array([m*[0]], dtype=W.dtype).T #criação do vetor x como uma matrix m por 1
+    x = np.ones((m,1), dtype=W.dtype) #criação do vetor x como uma matrix m por 1
     for k in range(m-1, -1, -1): #percorre os valores de x
         soma = sum([R[k,j]*x[j,0] for j in range(k+1, m)]) #encontra a somatória para subtrair em b_k
         x[k,0] = (b_[k,0] - soma) / R[k,k] #encontra o x_k
@@ -68,7 +68,8 @@ def testaSobredet():
     #print("Achado:\n", sol)
     #print("Real:\n", Wold.I * bold)
     #pint("Diferenca:\n", (Wold.I * bold) - sol)
-    print("Total: ", np.square((np.linalg.inv(W) @ b) - sol).sum())
+    #print("Total: ", np.square((np.linalg.inv(W) @ b) - sol).sum())
+    print("a) Erro: ", np.sqrt(np.square(W@sol - b).sum()))
     #b)
     def temp(k, i):
         if abs(k-i)<=4: return 1 / (i+k+1)
@@ -76,8 +77,9 @@ def testaSobredet():
     W = np.array([[temp(k,i) for k in range(17)] for i in range(20)], dtype=float)
     b = np.array([[i+1 for i in range(20)]], dtype=float).T
     sol = resolveSobredet(W,b)
-    print("Total: ", np.square(solvSobr(W,b) - sol).sum())
-#testaSobredet()
+    #print("Total: ", np.square(solvSobr(W,b) - sol).sum())
+    print("b) Erro: ", np.sqrt(np.square(W@sol - b).sum()))
+testaSobredet()
 
 def resolveSimult(W, A):
     #Aplicação do pseudocódigo dado em 2.4 do enunciado
@@ -96,8 +98,7 @@ def resolveSimult(W, A):
     H = np.zeros((p,m), dtype=A.dtype) #criação do vetor x como uma matrix m por 1
     for k in range(p-1, -1, -1): #percorre os valores de x
         for j in range(m):
-            #soma = sum([R[k,i]*H[i,j] for i in range(k+1, p)]) #encontra a somatória para subtrair em A_k_j
-            soma = np.sum(R[k, k+1:] @ H[k+1:, j])
+            soma = np.sum(R[k, k+1:] @ H[k+1:, j]) #encontra a somatória para subtrair em A_k_j
             if R[k,k] : H[k,j] = (A_[k,j] - soma) / R[k,k]
             else: H[k,j] = (A_[k,j] - soma) / 1e-15 #encontra o H_k_j
     return H
@@ -112,7 +113,8 @@ def testaSimult():
     W = np.array([[temp(k,i) for k in range(64)] for i in range(64)], dtype=float)
     A = np.array([[1 for i in range(64)], [i+1 for i in range(64)], [2*(i+1)-1 for i in range(64)]], dtype=float).T
     sol = resolveSimult(W,A)
-    print("Total: ", np.square((np.linalg.inv(W) @ A) - sol).sum())
+    #print("Total: ", np.square((np.linalg.inv(W) @ A) - sol).sum())
+    print("c) Erro: ", np.sqrt(np.square(W@sol - A).sum()))
     #d)
     def temp(k, i):
         if abs(k-i)<=4: return 1 / (i+k+1)
@@ -120,9 +122,10 @@ def testaSimult():
     W = np.array([[temp(k,i) for k in range(17)] for i in range(20)], dtype=float)
     A = np.array([[1 for i in range(20)], [i+1 for i in range(20)], [2*(i+1)-1 for i in range(20)]], dtype=float).T
     sol = resolveSimult(W,A)
-    print("Total: ", np.square(solvSobr(W,A) - sol).sum())
+    #print("Total: ", np.square(solvSobr(W,A) - sol).sum())
+    print("d) Erro: ", np.sqrt(np.square(W@sol - A).sum()))
     
-#testaSimult()
+testaSimult()
 def fatoraMatriz(A,p):
     #Implementação do pseudocódigo dado em na parte 3 do enunciado
     n,m = A.shape #A n por m, W n por p e H p por m
@@ -138,26 +141,16 @@ def fatoraMatriz(A,p):
 
     while it<itmax and deltaE>e:
         s = np.sqrt(np.square(W).sum(0)) #faz o quadrado de todos os valores de W, soma as colunas e depois a raiz quadrada de cada somatória
-        #for i in range(n): #i-ésima linha
-        #    for j in range(p): #j-ésima coluna
-        #        W[i,j] = W[i,j]/s[0,j]
-        for i in range(p):
-            W[:,i] /= s[i]
+
+        W /= s
                 
         H = resolveSimult(W,A_)
-        #A_ = A.copy()
-        
-        '''for i in range(p):
-            for j in range(m):
-                H[i,j] = max(0, H[i,j])'''
+
         H[H<0] = 0
 
-        Atrsp = A_.T
-        Wtrsp = resolveSimult(H.T,Atrsp)
+        Wtrsp = resolveSimult(H.T, A_.T)
         W = Wtrsp.T
-        '''for i in range(W.shape[0]):
-            for j in range(W.shape[1]):
-                W[i,j] = max(0, W[i,j])'''
+
         W[W<0] = 0
         
         Eantigo, E = E, np.square(A_-W@H).sum()
@@ -177,12 +170,12 @@ def testaFatora():
     m, n, p = 3, 3, 2
 
     W_, H_ = fatoraMatriz(A, p)
-    print("\nW\n", W, "\nW_\n", W_, "\nW-W_\n", W-W_)
-    print("\nH\n", H, "\nH_\n", H_, "\nH-H_\n",  H-H_)
-    print("\nA\n", A, "\nA_\n", W_@H_, "\nA-A_\n", A - W_@H_)
-    print("Total: ", np.square(A - W_@H_).sum())
+    #print("\nW\n", W, "\nW_\n", W_, "\nW-W_\n", W-W_)
+    #print("\nH\n", H, "\nH_\n", H_, "\nH-H_\n",  H-H_)
+    #print("\nA\n", A, "\nA_\n", W_@H_, "\nA-A_\n", A - W_@H_)
+    print("Fatoração: ", np.square(A - W_@H_).sum())
 
-#testaFatora()
+testaFatora()
 
 #A = np.matrix("68 78 39 146 18 59 139; 42 134 105 123 50 79 88; 88 97 109 131 38 73 88; 64 54 28 82 32 78 44; 28 62 53 52 14 37 39; 186 187 96 225 84 231 158", dtype=float)
 #temp = fatoraMatriz(A, 5)

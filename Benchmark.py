@@ -3,7 +3,7 @@ from Tarefa1 import *
 import time
 
 def main():
-    matriz = np.matrix(np.genfromtxt("bla.csv", delimiter=";"))
+    matriz = np.array(np.genfromtxt("bla.csv", delimiter=";"))
     tempo = time.time()
     relogio = time.clock()
     W, H = fatoraMatriz(matriz, 10)
