@@ -69,7 +69,8 @@ def testaSobredet():
     #print("Real:\n", Wold.I * bold)
     #pint("Diferenca:\n", (Wold.I * bold) - sol)
     #print("Total: ", np.square((np.linalg.inv(W) @ b) - sol).sum())
-    print("a) Erro: ", np.sqrt(np.square(W@sol - b).sum()))
+    print("a) E = ", np.sqrt(np.square(W@sol - b).sum()))
+    print("Erro do MMQ = ", np.sqrt(np.square((W.T@W)@sol - (W.T@b)).sum()))
     #b)
     def temp(k, i):
         if abs(k-i)<=4: return 1 / (i+k+1)
@@ -78,7 +79,8 @@ def testaSobredet():
     b = np.array([[i+1 for i in range(20)]], dtype=float).T
     sol = resolveSobredet(W,b)
     #print("Total: ", np.square(solvSobr(W,b) - sol).sum())
-    print("b) Erro: ", np.sqrt(np.square(W@sol - b).sum()))
+    print("b) E = ", np.sqrt(np.square(W@sol - b).sum()))
+    print("Erro do MMQ = ", np.sqrt(np.square((W.T@W)@sol - (W.T@b)).sum()))
 testaSobredet()
 
 def resolveSimult(W, A):
@@ -114,7 +116,9 @@ def testaSimult():
     A = np.array([[1 for i in range(64)], [i+1 for i in range(64)], [2*(i+1)-1 for i in range(64)]], dtype=float).T
     sol = resolveSimult(W,A)
     #print("Total: ", np.square((np.linalg.inv(W) @ A) - sol).sum())
-    print("c) Erro: ", np.sqrt(np.square(W@sol - A).sum()))
+    print("c) E = ", np.sqrt(np.square(W@sol - A).sum()))
+    print("Erro do MMQ = ", np.sqrt(np.square((W.T@W)@sol - (W.T@A)).sum()))
+
     #d)
     def temp(k, i):
         if abs(k-i)<=4: return 1 / (i+k+1)
@@ -123,7 +127,9 @@ def testaSimult():
     A = np.array([[1 for i in range(20)], [i+1 for i in range(20)], [2*(i+1)-1 for i in range(20)]], dtype=float).T
     sol = resolveSimult(W,A)
     #print("Total: ", np.square(solvSobr(W,A) - sol).sum())
-    print("d) Erro: ", np.sqrt(np.square(W@sol - A).sum()))
+    print("d) E = ", np.sqrt(np.square(W@sol - A).sum()))
+    print("Erro do MMQ = ", np.sqrt(np.square((W.T@W)@sol - (W.T@A)).sum()))
+
     
 testaSimult()
 def fatoraMatriz(A,p):
