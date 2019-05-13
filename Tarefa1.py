@@ -76,7 +76,7 @@ def testaSobredet():
         if abs(k-i)<=4: return 1 / (i+k+1)
         else: return 0
     W = np.array([[temp(k,i) for k in range(17)] for i in range(20)], dtype=float)
-    b = np.array([[i+1 for i in range(20)]], dtype=float).T
+    b = np.array([[i+1] for i in range(20)], dtype=float)
     sol = resolveSobredet(W,b)
     #print("Total: ", np.square(solvSobr(W,b) - sol).sum())
     print("b) E = ", np.sqrt(np.square(W@sol - b).sum()))
@@ -101,7 +101,7 @@ def resolveSimult(W, A):
     for k in range(p-1, -1, -1): #percorre os valores de x
         for j in range(m):
             soma = np.sum(R[k, k+1:] @ H[k+1:, j]) #encontra a somatória para subtrair em A_k_j
-            if R[k,k] : H[k,j] = (A_[k,j] - soma) / R[k,k]
+            if R[k,k]: H[k,j] = (A_[k,j] - soma) / R[k,k]
             else: H[k,j] = (A_[k,j] - soma) / 1e-15 #encontra o H_k_j
     return H
 
@@ -179,7 +179,7 @@ def testaFatora():
     #print("\nW\n", W, "\nW_\n", W_, "\nW-W_\n", W-W_)
     #print("\nH\n", H, "\nH_\n", H_, "\nH-H_\n",  H-H_)
     #print("\nA\n", A, "\nA_\n", W_@H_, "\nA-A_\n", A - W_@H_)
-    print("Fatoração: ", np.square(A - W_@H_).sum())
+    print("\nE da fatoração: ", np.square(A - W_@H_).sum())
 
 testaFatora()
 
