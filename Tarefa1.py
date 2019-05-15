@@ -81,7 +81,6 @@ def testaSobredet():
     #print("Total: ", np.square(solvSobr(W,b) - sol).sum())
     print("b) E = ", np.sqrt(np.square(W@sol - b).sum()))
     print("Erro do MMQ = ", np.sqrt(np.square((W.T@W)@sol - (W.T@b)).sum()))
-testaSobredet()
 
 def resolveSimult(W, A):
     #Aplicação do pseudocódigo dado em 2.4 do enunciado
@@ -129,9 +128,7 @@ def testaSimult():
     #print("Total: ", np.square(solvSobr(W,A) - sol).sum())
     print("d) E = ", np.sqrt(np.square(W@sol - A).sum()))
     print("Erro do MMQ = ", np.sqrt(np.square((W.T@W)@sol - (W.T@A)).sum()))
-
-    
-testaSimult()
+ 
 def fatoraMatriz(A,p):
     #Implementação do pseudocódigo dado em na parte 3 do enunciado
     n,m = A.shape #A n por m, W n por p e H p por m
@@ -181,7 +178,12 @@ def testaFatora():
     #print("\nA\n", A, "\nA_\n", W_@H_, "\nA-A_\n", A - W_@H_)
     print("\nE da fatoração: ", np.square(A - W_@H_).sum())
 
-testaFatora()
+
+
+if __name__ == "__main__" :
+    testaSimult()
+    testaSobredet()
+    testaFatora()
 
 #A = np.matrix("68 78 39 146 18 59 139; 42 134 105 123 50 79 88; 88 97 109 131 38 73 88; 64 54 28 82 32 78 44; 28 62 53 52 14 37 39; 186 187 96 225 84 231 158", dtype=float)
 #temp = fatoraMatriz(A, 5)
