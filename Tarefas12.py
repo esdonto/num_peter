@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
 
-# A = np.matrix("2 1 1 -1 1 ; 0 3 0 1 2 ; 0 0 2 2 -1 ; 0 0 -1 1 2 ; 0 0 0 3 1")
-
 import numpy as np
 import math
 
@@ -20,7 +18,7 @@ def solvSobr(W,b):
 #------------------# NÃO USAR NO EP #----------------------------
 
 def cosSen(W,i,j,k):
-    #Fórmulas (3) e (4), na parte 2.2 do enunciado
+    '''Dadas as linhas i e j e a coluna k da matriz W, encontra o seno e cosseno de W[i,k] e W[j,k], segundo as fórmulas (3) e (4) da parte 2.2 do enunciado''' 
     if abs(W[i,k]) > abs(W[j,k]):
         tau = -W[j,k]/W[i,k]
         c=1/math.sqrt(1 + tau**2)
@@ -33,15 +31,15 @@ def cosSen(W,i,j,k):
     return c,s
 
 def rotGivens(W, n, m ,i, j, c, s):
-    #Aplicação do pseudocódigo dado em 2.4 do enunciado
+    '''Aplica a rotação de Givens nas linhas i e j da matriz W, dados os seno e cosseno dessa rotação, seguindo o pseudocódigo dado em 2.4 do enunciado'''
     W[i,:], W[j,:] = c*W[i,:] - s*W[j,:], s*W[i,:] + c*W[j,:]
 
 
 def resolveSobredet(W, b):
-    #Aplicação do pseudocódigo dado em 2.3 do enunciado
+    '''Resolve o sistema sobredeterminado W*x = b, retornando o vetor x que minimiza o erro quadrado médio da equação, aplicando o pseudocódigo apresentado na parte 2.3 do enunciado'''
     n,m = W.shape #n linhas, m colunas
     b_ = b.copy() #cria cópia para não alterar a matriz original
-    R = W.copy()
+    R = W.copy() #cria cópia para não alterar a matriz original
     for k in range(m): #percorrendo colunas
         for j in range(n-1, k, -1): #percorrendo a coluna, de baixo para cima até k+1
             i = j-1
@@ -83,7 +81,9 @@ def testaSobredet():
     print("Erro do MMQ = ", np.sqrt(np.square((W.T@W)@sol - (W.T@b)).sum()))
 
 def resolveSimult(W, A):
-    #Aplicação do pseudocódigo dado em 2.4 do enunciado
+    '''Resolve os sistemas sobredeterminados W*x = b simultaneamente, sendo x cada couna de H e b cada coluna de A,
+    retornando os vetores x's que minimizam o erro quadrado médio das equações, sendo cada uma das colunas de H um desses x's, 
+    aplicando o pseudocódigo apresentado na parte 2.4 do enunciado'''
     n,m = A.shape #n linhas, m colunas de A
     p = W.shape[1] #p colunas de H
     A_ = A.copy() #cria cópia para não alterar a matriz original
@@ -144,20 +144,16 @@ def fatoraMatriz(A,p):
 
     while it<itmax and deltaE>e:
         s = np.sqrt(np.square(W).sum(0)) #faz o quadrado de todos os valores de W, soma as colunas e depois a raiz quadrada de cada somatória
-
-        W /= s
+        W /= s #subtrai cada coluna de W por cada item de s
                 
         H = resolveSimult(W,A_)
-
-        H[H<0] = 0
+        H[H<0] = 0 #Faz com que H seja matriz positiva
 
         Wtrsp = resolveSimult(H.T, A_.T)
-        W = Wtrsp.T
-
-        W[W<0] = 0
+        W = Wtrsp.T #Acha transposta
+        W[W<0] = 0 #Faz com que W seja matriz negativa
         
-        Eantigo, E = E, np.square(A_-W@H).sum()
-
+        Eantigo, E = E, np.square(A_-W@H).sum() #Acha novo valor para E, fazendo
         deltaE = abs(E - Eantigo)
         it += 1
         #print(E, it)
