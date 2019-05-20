@@ -17,7 +17,7 @@ def fazPredicao(ndig_treino=100, p=5):
         np.savetxt("dados_gerados/Ws/{}/W{}-n{}p{}.txt".format(i, i, ndig_treino, p), Ws[i], delimiter=",")
     #print("Terminou de fatorar")
     #Parte 2
-    dataTeste = np.genfromtxt("dados_mnist/test_images.txt", usecols=range(10000)) / 255
+    dataTeste = np.genfromtxt("dados_mnist/test_images.txt", usecols=range(10000)) 
     Hs = dez * [0]
     normas = np.array([[0 for i in range(dataTeste.shape[1])] for j in range(dez)]) #10 linhas, 10000 colunas
     for i in range(dez):
@@ -37,13 +37,13 @@ def calculaErro(ndig_treino=100, p=5):
     predicao = np.genfromtxt("dados_gerados/predicao/predicao-n{}p{}.txt".format(ndig_treino,p), delimiter=",")
     ids = np.genfromtxt("dados_mnist/test_index.txt")
 
-    quantidadeDeAcertos = (predicao == ids).sum()
-
     quantidadeDeDigitos = 10 * [0]
     acertosDeDigitos = 10 * [0]
     for i in range(10): 
         quantidadeDeDigitos[i] = (ids == i).sum()
-        acertosDeDigitos[i] = (predicao[ids==i] == ids[ids==i]).sum()
+        acertosDeDigitos[i] = (predicao[ids==i] == i).sum()
+
+    quantidadeDeAcertos = np.sum(acertosDeDigitos)
 
     return quantidadeDeAcertos, quantidadeDeDigitos, acertosDeDigitos
 
@@ -63,7 +63,7 @@ def plotaW(ndig_treino=100, p=5, digito=0):
         plt.imshow(W[:,i].reshape(28,28)).set_cmap('Greys')
         plt.xticks([])
         plt.yticks([])
-    plt.suptitle("Componentes do digito {} para ndig_treino={} e p={}".format(digito, ndig_treino, p), fontsize=30)
+    plt.suptitle("Componentes do digito {} para ndig_treino={} e p={}".format(digito, ndig_treino, p), fontsize=16)
     plt.tight_layout()
     plt.subplots_adjust(wspace=0.1, hspace=0.1, top=0.9)
     plt.show()
