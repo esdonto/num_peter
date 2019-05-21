@@ -3,20 +3,6 @@
 import numpy as np
 import math
 
-#------------------# NÃO USAR NO EP #----------------------------
-def solvSobr(W,b):
-    #Resolve sistema sobredeterminado para medir o erro
-    W_ = np.array([[0 for j in range(W.shape[1])] for j in range(W.shape[1])], dtype=W.dtype)
-    b_ = np.array([[0 for i in range(b.shape[1])] for k in range(W.shape[1])], dtype=b.dtype)
-    for i in range(W.shape[1]): #percorre linhas
-        for j in range(W.shape[1]): #percorre colunas
-            W_[i,j] = (W[:,i].T @ W[:,j])
-    for k in range(b.shape[1]):
-        for i in range(b_.shape[0]):
-            b_[i,k] = (W[:,i].T @ b[:,k])
-    return np.linalg.inv(W_) @ b_
-#------------------# NÃO USAR NO EP #----------------------------
-
 def cosSen(W,i,j,k):
     '''Dadas as linhas i e j e a coluna k da matriz W, encontra o seno e cosseno de W[i,k] e W[j,k], segundo as fórmulas (3) e (4) da parte 2.2 do enunciado''' 
     if abs(W[i,k]) > abs(W[j,k]):
@@ -63,10 +49,6 @@ def testaSobredet():
     W = np.array([[temp(k,i) for k in range(64)] for i in range(64)], dtype=float)
     b = np.array([[1 for i in range(64)]], dtype=float).T
     sol = resolveSobredet(W,b)
-    #print("Achado:\n", sol)
-    #print("Real:\n", Wold.I * bold)
-    #pint("Diferenca:\n", (Wold.I * bold) - sol)
-    #print("Total: ", np.square((np.linalg.inv(W) @ b) - sol).sum())
     print("a) E = ", np.sqrt(np.square(W@sol - b).sum()))
     print("Erro do MMQ = ", np.sqrt(np.square((W.T@W)@sol - (W.T@b)).sum()))
     #b)
@@ -76,7 +58,6 @@ def testaSobredet():
     W = np.array([[temp(k,i) for k in range(17)] for i in range(20)], dtype=float)
     b = np.array([[i+1] for i in range(20)], dtype=float)
     sol = resolveSobredet(W,b)
-    #print("Total: ", np.square(solvSobr(W,b) - sol).sum())
     print("b) E = ", np.sqrt(np.square(W@sol - b).sum()))
     print("Erro do MMQ = ", np.sqrt(np.square((W.T@W)@sol - (W.T@b)).sum()))
 
@@ -114,7 +95,6 @@ def testaSimult():
     W = np.array([[temp(k,i) for k in range(64)] for i in range(64)], dtype=float)
     A = np.array([[1 for i in range(64)], [i+1 for i in range(64)], [2*(i+1)-1 for i in range(64)]], dtype=float).T
     sol = resolveSimult(W,A)
-    #print("Total: ", np.square((np.linalg.inv(W) @ A) - sol).sum())
     print("c) E = ", np.sqrt(np.square(W@sol - A).sum()))
     print("Erro do MMQ = ", np.sqrt(np.square((W.T@W)@sol - (W.T@A)).sum()))
 
@@ -125,18 +105,18 @@ def testaSimult():
     W = np.array([[temp(k,i) for k in range(17)] for i in range(20)], dtype=float)
     A = np.array([[1 for i in range(20)], [i+1 for i in range(20)], [2*(i+1)-1 for i in range(20)]], dtype=float).T
     sol = resolveSimult(W,A)
-    #print("Total: ", np.square(solvSobr(W,A) - sol).sum())
     print("d) E = ", np.sqrt(np.square(W@sol - A).sum()))
     print("Erro do MMQ = ", np.sqrt(np.square((W.T@W)@sol - (W.T@A)).sum()))
  
 def fatoraMatriz(A,p):
-    #Implementação do pseudocódigo dado em na parte 3 do enunciado
+    '''Fatora uma matriz A n por m não negativa em uma matriz W n por p e H p por m, tal que tenta minimizar o módulo de erro A-W*H.
+    Implementação do pseudocódigo dado em na parte 3 do enunciado'''
     n,m = A.shape #A n por m, W n por p e H p por m
-    A_ = A.copy() #cria cópia para não alterar a matrix A original
+    # = A.copy() #cria cópia para não alterar a matrix A original
     itmax = 100 #número de iterações para chegar a condição de saída
     e = 1e-5 #valor da diferença entre dois erros consecutivod máximo para chegar na condição de saída
     
-    W = np.ones((n,p), dtype=A.dtype) #Cria matriz W com todos os valores iguais a 1
+    W = np.random.rand(n,p) #Cria matriz W com todos os valores aleatórios
     
     it=0 #número de iterações
     E = 0
@@ -146,14 +126,14 @@ def fatoraMatriz(A,p):
         s = np.sqrt(np.square(W).sum(0)) #faz o quadrado de todos os valores de W, soma as colunas e depois a raiz quadrada de cada somatória
         W /= s #subtrai cada coluna de W por cada item de s
                 
-        H = resolveSimult(W,A_)
+        H = resolveSimult(W,A)
         H[H<0] = 0 #Faz com que H seja matriz positiva
 
-        Wtrsp = resolveSimult(H.T, A_.T)
+        Wtrsp = resolveSimult(H.T, A.T)
         W = Wtrsp.T #Acha transposta
         W[W<0] = 0 #Faz com que W seja matriz negativa
         
-        Eantigo, E = E, np.square(A_-W@H).sum() #Acha novo valor para E, fazendo
+        Eantigo, E = E, np.square(A-W@H).sum() #Acha novo valor para E, fazendo
         deltaE = abs(E - Eantigo)
         it += 1
         #print(E, it)
@@ -172,13 +152,17 @@ def testaFatora():
     #print("\nW\n", W, "\nW_\n", W_, "\nW-W_\n", W-W_)
     #print("\nH\n", H, "\nH_\n", H_, "\nH-H_\n",  H-H_)
     #print("\nA\n", A, "\nA_\n", W_@H_, "\nA-A_\n", A - W_@H_)
-    print("\nE da fatoração: ", np.square(A - W_@H_).sum())
-
-
+    Es = 100*[0]
+    for i in range(100):
+        W_, H_ = fatoraMatriz(A, p)
+        Es[i] = np.square(A - W_@H_).sum()
+    print("E da fatoração da matriz no enunciado: ", np.mean(Es))
 
 if __name__ == "__main__" :
-    testaSimult()
+    print("Tarefa 1:")
     testaSobredet()
+    testaSimult()
+    print("\nTarefa 2:")
     testaFatora()
 
 #A = np.matrix("68 78 39 146 18 59 139; 42 134 105 123 50 79 88; 88 97 109 131 38 73 88; 64 54 28 82 32 78 44; 28 62 53 52 14 37 39; 186 187 96 225 84 231 158", dtype=float)
