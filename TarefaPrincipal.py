@@ -10,20 +10,19 @@ def fazPredicao(ndig_treino=100, p=5):
     '''Recebe a quantidade ndig_treino de amostras de cada digito que deve carregar para montar a matriz W 28² por p e acha a norma para cada digito para a base base de teste.
     Carrega os digitos da pasta dados_mnist, usa a função fatoraMatriz da Tarefas12 para achar W e salva esse W's,
     depois usa a função resolveSimult da Tarefas12 para encontrar a norma de cada imagem da base de teste em relação aos W's gerados de cada tipo de imageme salva essas normas'''
-    dez = 10
     #Carregando oa bases de treino
-    digitos = dez * [0]
-    for i in range(dez):
+    digitos = 10 * [0]
+    for i in range(10):
         digitos[i] = np.genfromtxt("dados_mnist/train_dig{}.txt".format(i), usecols=range(ndig_treino)) / 255 #Divide por 255 para normalizar cada valor da matriz, não é necessário ja que dentro de fatoraMatriz suas colunas já são normalizadas
-    Ws = dez * [0] #Um W para cada digito possível
-    for i in range(dez):
+    Ws = 10 * [0] #Um W para cada digito possível
+    for i in range(10):
         Ws[i] = fatoraMatriz(digitos[i], p)[0] #Encontra o W de cada digito possível
         np.savetxt("dados_gerados/Ws/{}/W{}-n{}p{}.txt".format(i, i, ndig_treino, p), Ws[i], delimiter=",") #Salva esse W
     #Fase de encontrar os Ws terminada, agora precisso carregar a base de teste e achar as normas
     dataTeste = np.genfromtxt("dados_mnist/test_images.txt", usecols=range(10000)) #Carrega a base de teste
-    Hs = dez * [0] #Um H para cada digito
-    normas = np.array([[0 for i in range(dataTeste.shape[1])] for j in range(dez)]) #10 linhas, 10000 colunas
-    for i in range(dez): #itera cada digito
+    Hs = 10 * [0] #Um H para cada digito
+    normas = np.array([[0 for i in range(dataTeste.shape[1])] for j in range(10)]) #10 linhas, 10000 colunas
+    for i in range(10): #itera cada digito
         Hs[i] = resolveSimult(Ws[i], dataTeste) #Encontra o H para a base de teste em relação a cada digito possível
         normas[i,:] = np.sqrt(np.square(dataTeste-Ws[i]@Hs[i]).sum(0)) #Calcula a norma do H escontrado
     np.savetxt("dados_gerados/normas/normas-n{}p{}.txt".format(ndig_treino,p), normas, delimiter=",") #Salva a norma encontrada
@@ -31,7 +30,7 @@ def fazPredicao(ndig_treino=100, p=5):
     predicao = np.zeros(10000) #Uma predição por imagem da base de teste
     for i in range(10000):
         minNorma = normas[0,i] #Inicia a mínima norma como a norma do para o dígito 0
-        for j in range(1, dez):
+        for j in range(1, 10):
             if minNorma > normas[j,i]: #Caso a nomrma de outro didito for meonr, se atualiza a norma mínima e troca o digito que se acha que é para o de norma menor
                 predicao[i] = j
                 minNorma = normas[j,i]
