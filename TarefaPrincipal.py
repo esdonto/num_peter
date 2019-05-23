@@ -78,7 +78,7 @@ def imprimeAcertos(ndig_treinos=[100,1000,4000], ps=[5,10,15]):
 
 #---------------------------------------------------------Plots-------------------------------------------------------------------
 
-def plotaW(ndig_treino=100, p=5, digito=0):
+def plotaW(ndig_treino=4000, p=15, digito=4):
     '''Dados a quantidade ndig_treino de cada digito usada para gerar o W 28² por p do digito selecionado, plota os componentes desse W'''
     W = np.genfromtxt("dados_gerados/Ws/{}/W{}-n{}p{}.txt".format(digito, digito, ndig_treino, p), delimiter=",") #Carrega o W
     for i in range(p):
